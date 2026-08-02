@@ -4,25 +4,45 @@ import { useState } from "react";
 import { initialRequests } from "@/lib/data";
 import { RentalRequest } from "@/types";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { CreditCard, Clock, CheckCircle, XCircle } from "lucide-react";
 
 export default function TenantDashboard() {
-  const router = useRouter();
   const [requests, setRequests] = useState<RentalRequest[]>(initialRequests);
   const [review, setReview] = useState("");
+  const [loadingPay, setLoadingPay] = useState<string | null>(null);
 
-  const handlePayNow = (reqId: string) => {
-    toast.loading("Redirecting to Stripe Gateway...");
-    setTimeout(() => {
-      router.push("/payment/success");
-    }, 1500);
+  const handlePayNow = async (req: RentalRequest) => {
+    setLoadingPay(req.id);
+    toast.loading("Connecting to Stripe Gateway...");
+
+    try {
+      const res = await fetch("/api/payments/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ price: req.price, propertyTitle: req.propertyTitle }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        toast.success("Payment authorized! Redirecting...");
+        setTimeout(() => {
+          window.location.href = data.url;
+        }, 1200);
+      } else {
+        toast.error("Failed to initiate payment flow.");
+      }
+    } catch (err) {
+      toast.error("Network error during payment initiation.");
+    } finally {
+      setLoadingPay(null);
+    }
   };
 
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!review) return;
-    toast.success("Review submitted successfully! Thank you for your feedback.");
+    toast.success("Review submitted successfully!");
     setReview("");
   };
 
@@ -43,7 +63,7 @@ export default function TenantDashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Tenant Portal</h1>
-        <p className="text-xs text-slate-500 mt-1">Manage rental requests and payments</p>
+        <p className="text-xs text-slate-500 mt-1">Manage rental requests and Stripe payments</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -71,10 +91,11 @@ export default function TenantDashboard() {
                   <td className="p-4">
                     {req.status === "APPROVED" ? (
                       <button
-                        onClick={() => handlePayNow(req.id)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                        onClick={() => handlePayNow(req)}
+                        disabled={loadingPay === req.id}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50"
                       >
-                        <CreditCard className="w-3.5 h-3.5" /> Pay Now
+                        <CreditCard className="w-3.5 h-3.5" /> {loadingPay === req.id ? "Processing..." : "Pay via Stripe"}
                       </button>
                     ) : (
                       <span className="text-xs text-slate-400">No Action Required</span>
