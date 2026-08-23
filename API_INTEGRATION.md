@@ -1,26 +1,24 @@
-# RentNest - API Integration Mapping
+﻿# RentNest - API Integration & Route Mapping
 
-## Authentication Endpoints
-- **POST** `/api/auth/login` -> `src/app/(auth)/login/page.tsx`
-- **POST** `/api/auth/register` -> `src/app/(auth)/register/page.tsx`
+This document maps all frontend components and user journeys to their corresponding backend API endpoints.
 
-## Property Management Endpoints
-- **GET** `/api/properties` -> `src/app/properties/page.tsx`
-- **GET** `/api/properties/:id` -> `src/app/properties/[id]/page.tsx`
-- **POST** `/api/landlord/properties` -> `src/app/(dashboard)/dashboard/landlord/page.tsx`
+## 📌 API Endpoints Mapping Table
 
-## Rental Requests Endpoints
-- **GET** `/api/rentals` -> `src/app/(dashboard)/dashboard/tenant/page.tsx`
-- **POST** `/api/rentals/request` -> `src/app/properties/[id]/page.tsx`
-- **GET** `/api/landlord/requests` -> `src/app/(dashboard)/dashboard/landlord/page.tsx`
-- **PATCH** `/api/landlord/requests/:id` -> `src/app/(dashboard)/dashboard/landlord/page.tsx`
+| Frontend Route / Component | HTTP Method | Backend API Endpoint | Description |
+| :--- | :--- | :--- | :--- |
+| **Home Page** (/) | GET | /api/properties | Fetches featured rental property listings. |
+| **Properties Directory** (/properties) | GET | /api/properties | Fetches all properties with real-time category & price filters. |
+| **Property Details** (/properties/[id]) | GET | /api/properties/[id] | Fetches single detailed property data & landlord information. |
+| **User Login** (/login) | POST | /api/auth/login | Authenticates Tenant, Landlord, or Admin credentials. |
+| **User Registration** (/register) | POST | /api/auth/register | Registers new accounts with specific role selection. |
+| **Tenant Dashboard** (/dashboard/tenant) | GET | /api/rentals | Fetches tenant rental requests and status badges. |
+| **Payment Gateway Checkout** | POST | /api/payments/create | Initiates secure Stripe/SSLCommerz payment session. |
+| **Payment Success Callback** (/payment/success) | GET | /payment/success | Confirms payment settlement and unlocks review form. |
+| **Landlord Dashboard** (/dashboard/landlord) | GET | /api/landlord/properties | Displays landlord listings and active earnings. |
+| **Request Management** (/dashboard/landlord) | PATCH | /api/landlord/requests/:id | Approves or Rejects tenant rental requests. |
+| **Admin Moderation** (/dashboard/admin) | GET | /api/admin/users | Lists all platform users with statistics. |
+| **User Moderation Action** (/dashboard/admin) | PATCH | /api/admin/users/:id | Banning and unbanning users platform-wide. |
 
-## Payment Integration Endpoints
-- **POST** `/api/payments/create` -> `src/app/(dashboard)/dashboard/tenant/page.tsx`
-- **GET** `/payment/success` -> `src/app/payment/success/page.tsx`
-- **GET** `/payment/cancel` -> `src/app/payment/cancel/page.tsx`
-
-## Admin Moderation Endpoints
-- **GET** `/api/admin/users` -> `src/app/(dashboard)/dashboard/admin/page.tsx`
-- **PATCH** `/api/admin/users/:id` -> `src/app/(dashboard)/dashboard/admin/page.tsx`
-
+## 🛡️ Authentication & Route Protection
+- Protected routes (/dashboard/*) are strictly guarded using **Next.js Middleware**.
+- UI dynamically adjusts based on the authenticated user role: **Tenant**, **Landlord**, or **Admin**.

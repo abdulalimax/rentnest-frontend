@@ -1,6 +1,5 @@
-export type Role = "Tenant" | "Landlord" | "Admin";
-
-export type RentalStatus = "PENDING" | "APPROVED" | "REJECTED" | "ACTIVE" | "COMPLETED";
+﻿export type Role = "Tenant" | "Landlord" | "Admin" | "TENANT" | "LANDLORD" | "ADMIN";
+export type UserRole = Role;
 
 export interface User {
   id: string;
@@ -30,9 +29,8 @@ export interface RentalRequest {
   propertyTitle: string;
   tenantId: string;
   tenantName: string;
-  landlordId: string;
+  landlordId?: string;
   price: number;
-  status: RentalStatus;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "ACTIVE" | "COMPLETED";
   createdAt: string;
 }
-
