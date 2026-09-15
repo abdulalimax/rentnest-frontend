@@ -1,9 +1,15 @@
-"use client";
+﻿"use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { XCircle, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 export default function PaymentCancelPage() {
+  useEffect(() => {
+    toast.error("Checkout process was cancelled. No charges were made.");
+  }, []);
+
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
       <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm max-w-md w-full text-center space-y-6">
@@ -13,7 +19,7 @@ export default function PaymentCancelPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Payment Cancelled</h1>
           <p className="text-sm text-slate-600 mt-2">
-            The checkout session was cancelled. No charges were applied.
+            The checkout session was cancelled. You can retry anytime from your portal.
           </p>
         </div>
         <Link
