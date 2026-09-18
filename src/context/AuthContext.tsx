@@ -1,61 +1,123 @@
-"use client";
+﻿"use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { User, Role } from "@/types";
-import { initialUsers } from "@/lib/data";
+import { useRouter } from "next/navigation";
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "landlord" | "tenant";
+}
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, role: Role) => boolean;
+  login: (email: string, pass: string) => Promise<{ success: boolean; message?: string }>;
+  register: (name: string, email: string, pass: string, role: "tenant" | "landlord") => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+const DEMO_USERS: Record<string, { pass: string; user: User }> = {
+  "admin@rentnest.com": {
+    pass: "admin123",
+    user: { id: "u_admin", name: "Super Admin", email: "admin@rentnest.com", role: "admin" },
+  },
+  "landlord@rentnest.com": {
+    pass: "landlord123",
+    user: { id: "u_landlord", name: "David Landlord", email: "landlord@rentnest.com", role: "landlord" },
+  },
+  "tenant@rentnest.com": {
+    pass: "tenant123",
+    user: { id: "u_tenant", name: "John Tenant", email: "tenant@rentnest.com", role: "tenant" },
+  },
+};
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const saved = localStorage.getItem("rentnest_user");
-    if (saved) {
-      setUser(JSON.parse(saved));
-    } else {
-      const defaultUser = initialUsers[0];
-      setUser(defaultUser);
-      localStorage.setItem("rentnest_user", JSON.stringify(defaultUser));
+    const savedUser = localStorage.getItem("rentnest_auth_user");
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem("rentnest_auth_user");
+      }
     }
+    setIsLoading(false);
   }, []);
 
-  const login = (email: string, role: Role) => {
-    const found = initialUsers.find((u) => u.email === email && u.role === role);
-    const newUser: User = found || {
-      id: "u_" + Date.now(),
-      name: email.split("@")[0],
-      email,
+  const setAuthCookies = (u: User) => {
+    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `token=auth_token_${u.id}; path=/; expires=${expires}; SameSite=Lax`;
+    document.cookie = `role=${u.role}; path=/; expires=${expires}; SameSite=Lax`;
+    localStorage.setItem("rentnest_auth_user", JSON.stringify(u));
+    setUser(u);
+  };
+
+  const login = async (email: string, pass: string) => {
+    const cleanEmail = email.trim().toLowerCase();
+    const registeredUsers = JSON.parse(localStorage.getItem("rentnest_registered_users") || "{}");
+    const account = DEMO_USERS[cleanEmail] || registeredUsers[cleanEmail];
+
+    if (!account) {
+      return { success: false, message: "No account found with this email." };
+    }
+
+    if (account.pass !== pass) {
+      return { success: false, message: "Invalid password credentials." };
+    }
+
+    setAuthCookies(account.user);
+    return { success: true };
+  };
+
+  const register = async (name: string, email: string, pass: string, role: "tenant" | "landlord") => {
+    const cleanEmail = email.trim().toLowerCase();
+    const registeredUsers = JSON.parse(localStorage.getItem("rentnest_registered_users") || "{}");
+
+    if (DEMO_USERS[cleanEmail] || registeredUsers[cleanEmail]) {
+      return { success: false, message: "Email is already registered. Please login." };
+    }
+
+    const newUser: User = {
+      id: "u_" + Date.now().toString().slice(-6),
+      name,
+      email: cleanEmail,
       role,
-      isBanned: false,
     };
 
-    setUser(newUser);
-    localStorage.setItem("rentnest_user", JSON.stringify(newUser));
-    return true;
+    registeredUsers[cleanEmail] = { pass, user: newUser };
+    localStorage.setItem("rentnest_registered_users", JSON.stringify(registeredUsers));
+
+    setAuthCookies(newUser);
+    return { success: true };
   };
 
   const logout = () => {
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    document.cookie = "role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    localStorage.removeItem("rentnest_auth_user");
     setUser(null);
-    localStorage.removeItem("rentnest_user");
+    router.push("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
   return context;
-};
-
+}

@@ -1,64 +1,140 @@
-import { Property, User, RentalRequest } from "@/types";
+﻿export interface Property {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  location: string;
+  category: string;
+  bedrooms: number;
+  bathrooms: number;
+  size: number;
+  amenities: string[];
+  images: string[];
+  landlordId: string;
+  landlordName: string;
+  isAvailable: boolean;
+  featured?: boolean;
+}
 
-export const initialUsers: User[] = [
-  { id: "u1", name: "John Tenant", email: "tenant@rentnest.com", role: "Tenant", isBanned: false },
-  { id: "u2", name: "Sarah Landlord", email: "landlord@rentnest.com", role: "Landlord", isBanned: false },
-  { id: "u3", name: "Admin User", email: "admin@rentnest.com", role: "Admin", isBanned: false },
-];
-
-export const initialProperties: Property[] = [
+export const INITIAL_PROPERTIES: Property[] = [
   {
     id: "p1",
-    title: "Modern Luxury Apartment in Gulshan",
-    description: "Spacious 3-bedroom luxury apartment with full city view, modern kitchen, 24/7 security, and dedicated parking space.",
-    price: 1200,
-    location: "Gulshan, Dhaka",
-    type: "Apartment",
-    amenities: ["WiFi", "Parking", "Gym", "Security"],
-    image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80",
+    title: "Modern Luxury Apartment in Gulshan-2",
+    description: "Spacious 3-bedroom luxury apartment located in the prime diplomatic zone of Gulshan-2, Dhaka. High security, lake view balcony, and generator backup.",
+    price: 65000,
+    location: "Gulshan-2, Dhaka",
+    category: "Apartment",
+    bedrooms: 3,
+    bathrooms: 3,
+    size: 2150,
+    amenities: ["Generator Backup", "24/7 Security", "Car Parking", "Elevator", "Balcony", "Gas Connection"],
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Buildings_in_Gulshan_2%2C_Dhaka.jpg/1280px-Buildings_in_Gulshan_2%2C_Dhaka.jpg",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80"
+    ],
+    landlordId: "u_landlord",
+    landlordName: "David Landlord",
     isAvailable: true,
-    landlordId: "u2",
-    landlordName: "Sarah Landlord",
+    featured: true,
   },
   {
     id: "p2",
-    title: "Cozy Studio Flat Near University",
-    description: "Perfect for students or working professionals. Fully furnished studio with high-speed internet and quiet atmosphere.",
-    price: 450,
-    location: "Dhanmondi, Dhaka",
-    type: "Studio",
-    amenities: ["WiFi", "Air Conditioning", "Furnished"],
-    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
+    title: "Elegant Residential Flat in Banani",
+    description: "Quiet, peaceful and premium residential building in Banani Block C. Close to road 11, supermarkets, and international restaurants.",
+    price: 52000,
+    location: "Banani, Dhaka",
+    category: "Apartment",
+    bedrooms: 3,
+    bathrooms: 3,
+    size: 1850,
+    amenities: ["Elevator", "Car Parking", "CCTV Surveillance", "Modern Kitchen", "Intercom"],
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/A_house_in_Banani_Model_Town%2C_Dhaka_01.jpg/1280px-A_house_in_Banani_Model_Town%2C_Dhaka_01.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/A_house_in_Banani_Model_Town%2C_Dhaka_02.jpg/1280px-A_house_in_Banani_Model_Town%2C_Dhaka_02.jpg"
+    ],
+    landlordId: "u_landlord",
+    landlordName: "David Landlord",
     isAvailable: true,
-    landlordId: "u2",
-    landlordName: "Sarah Landlord",
+    featured: true,
   },
   {
     id: "p3",
-    title: "Spacious Family Duplex",
-    description: "Beautiful 4-bedroom duplex with private garden, garage, and quiet neighborhood. Great location near top schools.",
-    price: 2200,
-    location: "Uttara, Dhaka",
-    type: "Duplex",
-    amenities: ["Garden", "Garage", "Pet Friendly", "Security"],
-    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+    title: "Spacious Family Flat in Dhanmondi",
+    description: "Beautiful south-facing family apartment in Dhanmondi near lakeside. Abundant natural light and ventilation with easy access to top schools.",
+    price: 45000,
+    location: "Dhanmondi, Dhaka",
+    category: "Apartment",
+    bedrooms: 3,
+    bathrooms: 2,
+    size: 1650,
+    amenities: ["Lakeside Access", "Generator", "Guard Security", "Wide Balcony", "Tiled Flooring"],
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Apartment_buildings_in_Dhaka_%2830569828554%29.jpg/1280px-Apartment_buildings_in_Dhaka_%2830569828554%29.jpg",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80"
+    ],
+    landlordId: "u_landlord",
+    landlordName: "David Landlord",
     isAvailable: true,
-    landlordId: "u2",
-    landlordName: "Sarah Landlord",
-  }
-];
-
-export const initialRequests: RentalRequest[] = [
+    featured: true,
+  },
   {
-    id: "req1",
-    propertyId: "p1",
-    propertyTitle: "Modern Luxury Apartment in Gulshan",
-    tenantId: "u1",
-    tenantName: "John Tenant",
-    landlordId: "u2",
-    price: 1200,
-    status: "APPROVED",
-    createdAt: "2026-08-01",
+    id: "p4",
+    title: "Contemporary 3-BHK Apartment in Uttara Sector 7",
+    description: "Modern apartment right by Uttara Sector 7 park. Wide access roads, metro rail station nearby, and rooftop recreation area.",
+    price: 38000,
+    location: "Uttara Sector 7, Dhaka",
+    category: "Apartment",
+    bedrooms: 3,
+    bathrooms: 3,
+    size: 1550,
+    amenities: ["Metro Rail Proximity", "Elevator", "Rooftop Garden", "Security Guards", "Dedicated Parking"],
+    images: [
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800&auto=format&fit=crop&q=80"
+    ],
+    landlordId: "u_landlord",
+    landlordName: "David Landlord",
+    isAvailable: true,
+    featured: false,
+  },
+  {
+    id: "p5",
+    title: "Concord Tower Residential Complex in Azimpur",
+    description: "Secure and well-managed family residence at Concord complex, Azimpur. Extremely convenient for university faculties and professionals.",
+    price: 32000,
+    location: "Azimpur, Dhaka",
+    category: "Apartment",
+    bedrooms: 2,
+    bathrooms: 2,
+    size: 1250,
+    amenities: ["Community Hall", "Gated Security", "Elevator", "Continuous Water Supply", "Maintenance Staff"],
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Concord_Apartment_Buildings%2C_Ajimpur%2C_Dhaka%2C_Bangladesh.jpg/1280px-Concord_Apartment_Buildings%2C_Ajimpur%2C_Dhaka%2C_Bangladesh.jpg",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&auto=format&fit=crop&q=80"
+    ],
+    landlordId: "u_landlord",
+    landlordName: "David Landlord",
+    isAvailable: true,
+    featured: false,
+  },
+  {
+    id: "p6",
+    title: "Affordable Cozy Flat in Mirpur DOHS",
+    description: "Highly secure cantonment zone residence in Mirpur DOHS. Children play zone, walking trails, and disciplined community environment.",
+    price: 30000,
+    location: "Mirpur DOHS, Dhaka",
+    category: "Apartment",
+    bedrooms: 3,
+    bathrooms: 2,
+    size: 1400,
+    amenities: ["DOHS Security", "Park & Walking Track", "Reserved Parking", "CCTV Monitoring", "Clean Air"],
+    images: [
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800&auto=format&fit=crop&q=80"
+    ],
+    landlordId: "u_landlord",
+    landlordName: "David Landlord",
+    isAvailable: true,
+    featured: false,
   }
 ];
-
