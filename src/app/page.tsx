@@ -13,7 +13,7 @@ export default function Home() {
           <img
             src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1600&q=80"
             alt="Hero Background"
-            fill
+            className="w-full h-full object-cover"
             className="object-cover"
             priority
           />
@@ -59,9 +59,9 @@ export default function Home() {
             >
               <div className="relative h-56 w-full">
                 <img
-                  src={property.image}
+                  src={(property.image || (property.images && (property.images && property.images[0] || property.image)))}
                   alt={property.title}
-                  fill
+                  className="w-full h-full object-cover"
                   className="object-cover"
                 />
                 <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-slate-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
