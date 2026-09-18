@@ -1,18 +1,18 @@
 {
   "/_not-found": "app/_not-found.js",
   "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/(auth)/register/page": "app/(auth)/register/page.js",
   "/(dashboard)/dashboard/admin/page": "app/(dashboard)/dashboard/admin/page.js",
   "/(dashboard)/dashboard/landlord/page": "app/(dashboard)/dashboard/landlord/page.js",
   "/api/admin/users/route": "app/api/admin/users/route.js",
   "/(dashboard)/dashboard/tenant/page": "app/(dashboard)/dashboard/tenant/page.js",
   "/api/auth/login/route": "app/api/auth/login/route.js",
   "/api/payments/create/route": "app/api/payments/create/route.js",
-  "/api/rentals/route": "app/api/rentals/route.js",
   "/api/properties/route": "app/api/properties/route.js",
+  "/api/rentals/route": "app/api/rentals/route.js",
   "/payment/cancel/page": "app/payment/cancel/page.js",
   "/page": "app/page.js",
-  "/properties/[id]/page": "app/properties/[id]/page.js",
+  "/payment/success/page": "app/payment/success/page.js",
   "/properties/page": "app/properties/page.js",
-  "/(auth)/register/page": "app/(auth)/register/page.js",
-  "/payment/success/page": "app/payment/success/page.js"
+  "/properties/[id]/page": "app/properties/[id]/page.js"
 }
