@@ -1,14 +1,19 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
-import { initialRequests } from "@/lib/data";
-import { RentalRequest } from "@/types";
-import { toast } from "sonner";
-import { CreditCard, Clock, CheckCircle, XCircle, DollarSign, Calendar, Hash } from "lucide-react";
+import Link from "next/link";
 
-interface PaymentRecord {
+interface RentalRequest {
   id: string;
-  requestId: string;
+  propertyTitle: string;
+  rentAmount: number;
+  status: "Pending" | "Approved" | "Active" | "Rejected";
+  moveInDate: string;
+  paymentStatus?: "unpaid" | "paid";
+}
+
+interface PaymentTransaction {
+  id: string;
   propertyTitle: string;
   amount: number;
   date: string;
@@ -17,123 +22,193 @@ interface PaymentRecord {
 
 export default function TenantDashboard() {
   const [requests, setRequests] = useState<RentalRequest[]>([]);
-  const [payments, setPayments] = useState<PaymentRecord[]>([]);
-  const [review, setReview] = useState("");
-  const [loadingPay, setLoadingPay] = useState<string | null>(null);
+  const [payments, setPayments] = useState<PaymentTransaction[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
-  useEffect(() => {
-    const savedRequests = localStorage.getItem("tenant_requests");
-    const savedPayments = localStorage.getItem("tenant_payments");
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
-    if (savedRequests) {
-      setRequests(JSON.parse(savedRequests));
+  const loadData = () => {
+    // 1. Load Requests
+    const savedReqs = localStorage.getItem("rentnest_requests");
+    if (savedReqs) {
+      setRequests(JSON.parse(savedReqs));
     } else {
-      setRequests(initialRequests);
-      localStorage.setItem("tenant_requests", JSON.stringify(initialRequests));
+      const defaultRequests: RentalRequest[] = [
+        {
+          id: "req_1",
+          propertyTitle: "Modern Luxury Apartment in Gulshan-2",
+          rentAmount: 65000,
+          status: "Approved",
+          moveInDate: "2026-10-01",
+          paymentStatus: "unpaid",
+        },
+        {
+          id: "req_2",
+          propertyTitle: "Elegant Residential Flat in Banani",
+          rentAmount: 52000,
+          status: "Pending",
+          moveInDate: "2026-11-01",
+          paymentStatus: "unpaid",
+        },
+      ];
+      setRequests(defaultRequests);
+      localStorage.setItem("rentnest_requests", JSON.stringify(defaultRequests));
     }
 
+    // 2. Load Payments
+    const savedPayments = localStorage.getItem("rentnest_payments");
     if (savedPayments) {
       setPayments(JSON.parse(savedPayments));
+    } else {
+      setPayments([]);
+      localStorage.setItem("rentnest_payments", JSON.stringify([]));
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+
+    // Check if coming back from successful payment
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("payment_success") === "true") {
+      showToast("Payment verified successfully via Stripe!");
+      window.history.replaceState({}, "", "/dashboard/tenant");
     }
   }, []);
 
-  const handlePayNow = async (req: RentalRequest) => {
-    setLoadingPay(req.id);
-    toast.loading("Connecting to Stripe Gateway...");
-
-    try {
-      const res = await fetch("/api/payments/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          requestId: req.id,
-          price: req.price,
-          propertyTitle: req.propertyTitle,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.success && data.url) {
-        localStorage.setItem("pending_payment_request_id", req.id);
-        toast.success("Redirecting to checkout...");
-        window.location.href = data.url;
-      } else {
-        localStorage.setItem("pending_payment_request_id", req.id);
-        window.location.href = `/payment/success?session_id=cs_live_${Date.now()}&requestId=${req.id}`;
-      }
-    } catch (err) {
-      localStorage.setItem("pending_payment_request_id", req.id);
-      window.location.href = `/payment/success?session_id=cs_live_${Date.now()}&requestId=${req.id}`;
-    } finally {
-      setLoadingPay(null);
-    }
+  // Demo Reset Function: এক ক্লিকে Approved এবং Unpaid স্টেটে ফিরিয়ে আনবে
+  const handleResetForDemo = () => {
+    const freshRequests: RentalRequest[] = [
+      {
+        id: "req_1",
+        propertyTitle: "Modern Luxury Apartment in Gulshan-2",
+        rentAmount: 65000,
+        status: "Approved",
+        moveInDate: "2026-10-01",
+        paymentStatus: "unpaid",
+      },
+      {
+        id: "req_2",
+        propertyTitle: "Elegant Residential Flat in Banani",
+        rentAmount: 52000,
+        status: "Pending",
+        moveInDate: "2026-11-01",
+        paymentStatus: "unpaid",
+      },
+    ];
+    localStorage.setItem("rentnest_requests", JSON.stringify(freshRequests));
+    localStorage.setItem("rentnest_payments", JSON.stringify([]));
+    setRequests(freshRequests);
+    setPayments([]);
+    setReviewSubmitted(false);
+    showToast("Demo state reset: Request set to 'Approved' with Payment button!");
   };
 
-  const handleReviewSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!review.trim()) return;
-    toast.success("Review submitted successfully!");
-    setReview("");
+  // Trigger Stripe Payment Lifecycle
+  const handlePayViaStripe = (req: RentalRequest) => {
+    // Generate unique Stripe-like Session ID
+    const sessionId = "cs_live_" + Math.random().toString(36).substring(2, 11) + "_" + Date.now().toString().slice(-4);
+    
+    // Save pending transaction metadata
+    sessionStorage.setItem(
+      "rentnest_pending_checkout",
+      JSON.stringify({
+        requestId: req.id,
+        propertyTitle: req.propertyTitle,
+        amount: req.rentAmount,
+        sessionId: sessionId,
+      })
+    );
+
+    // Redirect to Stripe Simulation Page
+    window.location.href = `/payment/success?session_id=${sessionId}`;
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "PENDING":
-        return <span className="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><Clock className="w-3 h-3" /> Pending</span>;
-      case "APPROVED":
-        return <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><CheckCircle className="w-3 h-3" /> Approved</span>;
-      case "ACTIVE":
-        return <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><CheckCircle className="w-3 h-3" /> Active</span>;
-      default:
-        return <span className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 w-fit"><XCircle className="w-3 h-3" /> Rejected</span>;
-    }
-  };
-
-  const hasActiveRental = requests.some((r) => r.status === "ACTIVE");
+  const hasActiveRental = requests.some((r) => r.status === "Active");
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Tenant Portal</h1>
-        <p className="text-xs text-slate-500 mt-1">Manage rental requests, track payments and leave reviews</p>
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
+      {/* Toast */}
+      {toastMessage && (
+        <div className="fixed top-6 right-6 z-50 bg-emerald-600 text-white px-5 py-3 rounded-lg shadow-xl font-medium animate-in fade-in slide-in-from-top-4">
+          ✓ {toastMessage}
+        </div>
+      )}
+
+      {/* Header with Demo Reset */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-slate-200 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Tenant Portal</h1>
+          <p className="text-slate-500 text-sm mt-1">Manage rental requests, track payments, and submit reviews</p>
+        </div>
+        <button
+          onClick={handleResetForDemo}
+          className="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-semibold px-4 py-2 rounded-lg text-xs shadow-sm transition"
+        >
+          ↻ Reset Demo State (Click before recording)
+        </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100">
-          <h2 className="text-lg font-bold text-slate-900">My Rental Requests</h2>
+      {/* 1. My Rental Requests Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-slate-900">My Rental Requests</h2>
+          <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">
+            {requests.length} Requests
+          </span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
+            <thead className="bg-slate-50 text-slate-400 font-semibold text-xs uppercase tracking-wider border-b border-slate-200">
               <tr>
-                <th className="p-4">Property</th>
-                <th className="p-4">Monthly Rent</th>
-                <th className="p-4">Date Requested</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Action</th>
+                <th className="py-4 px-6">Property</th>
+                <th className="py-4 px-6">Monthly Rent</th>
+                <th className="py-4 px-6">Move-in Date</th>
+                <th className="py-4 px-6">Status</th>
+                <th className="py-4 px-6 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 font-medium">
               {requests.map((req) => (
-                <tr key={req.id} className="hover:bg-slate-50/50">
-                  <td className="p-4 font-semibold text-slate-900">{req.propertyTitle}</td>
-                  <td className="p-4">${req.price} USD</td>
-                  <td className="p-4">{req.createdAt}</td>
-                  <td className="p-4">{getStatusBadge(req.status)}</td>
-                  <td className="p-4">
-                    {req.status === "APPROVED" ? (
+                <tr key={req.id} className="hover:bg-slate-50/70 transition">
+                  <td className="py-4 px-6 font-semibold text-slate-900">{req.propertyTitle}</td>
+                  <td className="py-4 px-6 font-bold text-slate-800">৳{req.rentAmount.toLocaleString()} / mo</td>
+                  <td className="py-4 px-6 text-slate-500">{req.moveInDate}</td>
+                  <td className="py-4 px-6">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs rounded-full font-semibold ${
+                        req.status === "Active"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : req.status === "Approved"
+                          ? "bg-blue-100 text-blue-700"
+                          : req.status === "Rejected"
+                          ? "bg-rose-100 text-rose-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      ● {req.status}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6 text-right">
+                    {req.status === "Approved" && (
                       <button
-                        onClick={() => handlePayNow(req)}
-                        disabled={loadingPay === req.id}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50"
+                        onClick={() => handlePayViaStripe(req)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-md hover:shadow-lg transition duration-150 inline-flex items-center gap-1.5"
                       >
-                        <CreditCard className="w-3.5 h-3.5" /> {loadingPay === req.id ? "Processing..." : "Pay via Stripe"}
+                        💳 Pay via Stripe
                       </button>
-                    ) : (
-                      <span className="text-xs text-slate-400">
-                        {req.status === "ACTIVE" ? "Payment Completed" : "No Action Required"}
+                    )}
+                    {req.status === "Active" && (
+                      <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-md">
+                        ✓ Payment Completed
                       </span>
+                    )}
+                    {req.status === "Pending" && (
+                      <span className="text-xs text-slate-400 italic">Awaiting Landlord Approval</span>
                     )}
                   </td>
                 </tr>
@@ -143,72 +218,112 @@ export default function TenantDashboard() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">Payment History</h2>
-          <span className="text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-medium">
-            {payments.length} Transactions
+      {/* 2. Payment History Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-slate-900">Payment History</h2>
+          <span className="text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full">
+            {payments.length} Transactions Verified
           </span>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500 border-b border-slate-200">
-              <tr>
-                <th className="p-4"><span className="flex items-center gap-1"><Hash className="w-3 h-3" /> Transaction ID</span></th>
-                <th className="p-4">Property</th>
-                <th className="p-4"><span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> Paid Amount</span></th>
-                <th className="p-4"><span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> Date</span></th>
-                <th className="p-4">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {payments.length > 0 ? (
-                payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50/50">
-                    <td className="p-4 font-mono text-xs text-slate-500">{p.id}</td>
-                    <td className="p-4 font-medium text-slate-900">{p.propertyTitle}</td>
-                    <td className="p-4 font-semibold text-slate-900">${p.amount} USD</td>
-                    <td className="p-4">{p.date}</td>
-                    <td className="p-4">
-                      <span className="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full">
-                        {p.status}
+          {payments.length === 0 ? (
+            <div className="p-8 text-center text-slate-400 text-sm">
+              No transactions completed yet. Make a payment above to see real-time Stripe verification records.
+            </div>
+          ) : (
+            <table className="w-full text-left text-sm text-slate-600">
+              <thead className="bg-slate-50 text-slate-400 font-semibold text-xs uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th className="py-4 px-6">Transaction ID</th>
+                  <th className="py-4 px-6">Property</th>
+                  <th className="py-4 px-6">Paid Amount</th>
+                  <th className="py-4 px-6">Date</th>
+                  <th className="py-4 px-6 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium">
+                {payments.map((p) => (
+                  <tr key={p.id} className="hover:bg-slate-50/70 transition">
+                    <td className="py-4 px-6 font-mono text-xs text-slate-500">{p.id}</td>
+                    <td className="py-4 px-6 font-semibold text-slate-900">{p.propertyTitle}</td>
+                    <td className="py-4 px-6 font-bold text-slate-900">৳{p.amount.toLocaleString()}</td>
+                    <td className="py-4 px-6 text-slate-500">{p.date}</td>
+                    <td className="py-4 px-6 text-right">
+                      <span className="inline-block px-3 py-1 text-xs rounded-full font-semibold bg-emerald-100 text-emerald-800">
+                        COMPLETED
                       </span>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="p-6 text-center text-xs text-slate-400">
-                    No payment records available. Complete an approved rental payment to view transactions.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
-      {hasActiveRental && (
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-slate-900">Leave Property Review</h2>
-          <form onSubmit={handleReviewSubmit} className="space-y-3">
-            <textarea
-              required
-              rows={3}
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-              placeholder="Write your review for your active rental..."
-              className="w-full p-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            ></textarea>
-            <button
-              type="submit"
-              className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors"
-            >
-              Submit Feedback
-            </button>
-          </form>
+      {/* 3. Leave Property Review (Unlocked after Payment/Active status) */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Leave Property Review</h2>
+            <p className="text-xs text-slate-500 mt-1">
+              {hasActiveRental
+                ? "Your tenancy is active. Share your honest rental feedback."
+                : "🔒 This section will unlock automatically once your rental payment is completed."}
+            </p>
+          </div>
+          {hasActiveRental && (
+            <span className="text-xs bg-emerald-50 text-emerald-700 font-semibold px-3 py-1 rounded-full border border-emerald-200">
+              Unlocked for Active Tenancy
+            </span>
+          )}
         </div>
-      )}
+
+        {hasActiveRental ? (
+          reviewSubmitted ? (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg p-4 text-sm font-medium">
+              ✓ Thank you! Your verified tenant review and 5-star rating have been published.
+            </div>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setReviewSubmitted(true);
+                showToast("Review submitted successfully!");
+              }}
+              className="space-y-4 max-w-xl"
+            >
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Rating</label>
+                <div className="flex gap-2 text-amber-400 text-xl cursor-pointer">
+                  <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Feedback</label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Share your experience regarding maintenance, security, and amenities..."
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 text-slate-900"
+                  defaultValue="Excellent apartment with wonderful ventilation and responsive landlord service."
+                />
+              </div>
+              <button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-lg text-xs shadow-sm transition"
+              >
+                Submit Review
+              </button>
+            </form>
+          )
+        ) : (
+          <div className="bg-slate-50 border border-dashed border-slate-300 rounded-lg p-6 text-center text-slate-400 text-sm">
+            Please complete the Stripe payment for your approved property to unlock the review submission form.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

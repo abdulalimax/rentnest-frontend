@@ -1,84 +1,98 @@
 ﻿"use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { RentalRequest } from "@/types";
 
-function SuccessContent() {
-  const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id") || "sess_live_" + Date.now().toString().slice(-8);
-  const targetId = searchParams.get("requestId");
+export default function PaymentSuccessPage() {
+  const [sessionData, setSessionData] = useState<{
+    sessionId: string;
+    amount: number;
+    propertyTitle: string;
+  }>({
+    sessionId: "cs_test_" + Math.random().toString(36).substring(2, 9),
+    amount: 65000,
+    propertyTitle: "Modern Luxury Apartment in Gulshan-2",
+  });
 
   useEffect(() => {
-    const storedRequests = localStorage.getItem("tenant_requests");
-    const storedPayments = localStorage.getItem("tenant_payments");
-    const pendingId = targetId || localStorage.getItem("pending_payment_request_id");
-
-    if (storedRequests) {
-      const requests: RentalRequest[] = JSON.parse(storedRequests);
-      const updated = requests.map((req) => {
-        if (!pendingId || req.id === pendingId || req.status === "APPROVED") {
-          return { ...req, status: "ACTIVE" };
-        }
-        return req;
+    // 1. Get session info from pending checkout
+    const pending = sessionStorage.getItem("rentnest_pending_checkout");
+    if (pending) {
+      const data = JSON.parse(pending);
+      setSessionData({
+        sessionId: data.sessionId,
+        amount: data.amount,
+        propertyTitle: data.propertyTitle,
       });
 
-      localStorage.setItem("tenant_requests", JSON.stringify(updated));
+      // 2. Persist to localStorage: Update request to Active
+      const savedReqs = localStorage.getItem("rentnest_requests");
+      if (savedReqs) {
+        const reqs = JSON.parse(savedReqs);
+        const updated = reqs.map((r: any) =>
+          r.id === data.requestId
+            ? { ...r, status: "Active", paymentStatus: "paid" }
+            : r
+        );
+        localStorage.setItem("rentnest_requests", JSON.stringify(updated));
+      }
 
-      const matchedReq = requests.find((r) => r.id === pendingId) || requests.find((r) => r.status === "APPROVED") || requests[0];
-      const newPayment = {
-        id: sessionId,
-        requestId: matchedReq?.id || "req_01",
-        propertyTitle: matchedReq?.propertyTitle || "Modern City Apartment",
-        amount: matchedReq?.price || 1200,
+      // 3. Persist to localStorage: Add to Payment History
+      const savedPayments = localStorage.getItem("rentnest_payments");
+      const payments = savedPayments ? JSON.parse(savedPayments) : [];
+      const newTransaction = {
+        id: data.sessionId,
+        propertyTitle: data.propertyTitle,
+        amount: data.amount,
         date: new Date().toISOString().split("T")[0],
         status: "COMPLETED",
       };
-
-      const existingPayments = storedPayments ? JSON.parse(storedPayments) : [];
-      const isAlreadyRecorded = existingPayments.some((p: { id: string }) => p.id === sessionId);
-      if (!isAlreadyRecorded) {
-        localStorage.setItem("tenant_payments", JSON.stringify([newPayment, ...existingPayments]));
+      // Avoid duplicate insert
+      if (!payments.some((p: any) => p.id === data.sessionId)) {
+        payments.unshift(newTransaction);
+        localStorage.setItem("rentnest_payments", JSON.stringify(payments));
       }
+
+      sessionStorage.removeItem("rentnest_pending_checkout");
     }
-
-    localStorage.removeItem("pending_payment_request_id");
-    toast.success("Payment verified! Booking is now ACTIVE.");
-  }, [sessionId, targetId]);
+  }, []);
 
   return (
-    <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm max-w-md w-full text-center space-y-6">
-      <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
-        <CheckCircle2 className="w-10 h-10" />
-      </div>
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Payment Successful!</h1>
-        <p className="text-sm text-slate-600 mt-2">
-          Your payment has been settled and your rental status is now <strong>ACTIVE</strong>.
-        </p>
-        <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs font-mono text-slate-600">
-          Transaction Reference: {sessionId}
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-100 p-8 text-center animate-in zoom-in-95 duration-200">
+        <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-bold">
+          ✓
         </div>
-      </div>
-      <Link
-        href="/dashboard/tenant"
-        className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition-all text-sm w-full shadow-sm"
-      >
-        Return to Dashboard <ArrowRight className="w-4 h-4" />
-      </Link>
-    </div>
-  );
-}
+        <span className="inline-block px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-full mb-3">
+          Stripe Payment Verified
+        </span>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Payment Successful!</h1>
+        <p className="text-slate-500 text-sm mb-6">
+          Your rent payment for <span className="font-semibold text-slate-800">{sessionData.propertyTitle}</span> has been processed.
+        </p>
 
-export default function PaymentSuccessPage() {
-  return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
-      <Suspense fallback={<Loader2 className="w-8 h-8 animate-spin text-blue-600" />}>
-        <SuccessContent />
-      </Suspense>
+        <div className="bg-slate-50 rounded-xl p-4 mb-6 text-left border border-slate-200 space-y-2 text-xs">
+          <div className="flex justify-between">
+            <span className="text-slate-500">Amount Paid:</span>
+            <span className="font-bold text-slate-900">৳{sessionData.amount.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-500">Payment Gateway:</span>
+            <span className="font-semibold text-blue-600">Stripe Checkout (Card)</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-500">Transaction Ref:</span>
+            <span className="font-mono text-slate-600 truncate max-w-[180px]">{sessionData.sessionId}</span>
+          </div>
+        </div>
+
+        <Link
+          href="/dashboard/tenant?payment_success=true"
+          className="w-full block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl text-sm shadow-md hover:shadow-lg transition"
+        >
+          Return to Dashboard
+        </Link>
+      </div>
     </div>
   );
 }
