@@ -1,0 +1,11 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[359],{3813:function(e,t,s){Promise.resolve().then(s.bind(s,174))},9886:function(e,t,s){"use strict";s.d(t,{Z:function(){return r}});/**
+ * @license lucide-react v0.359.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */let r=(0,s(843).Z)("CircleX",[["circle",{cx:"12",cy:"12",r:"10",key:"1mglay"}],["path",{d:"m15 9-6 6",key:"1uzhvr"}],["path",{d:"m9 9 6 6",key:"z0biqf"}]])},174:function(e,t,s){"use strict";s.r(t),s.d(t,{default:function(){return i}});var r=s(7437),n=s(2265),a=s(8792),l=s(9886);/**
+ * @license lucide-react v0.359.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */let c=(0,s(843).Z)("ArrowLeft",[["path",{d:"m12 19-7-7 7-7",key:"1l729n"}],["path",{d:"M19 12H5",key:"x3x0zl"}]]);var d=s(6288);function i(){return(0,n.useEffect)(()=>{d.Am.error("Checkout process was cancelled. No charges were made.")},[]),(0,r.jsx)("div",{className:"min-h-[70vh] flex items-center justify-center px-4 py-12",children:(0,r.jsxs)("div",{className:"bg-white p-8 rounded-3xl border border-slate-200 shadow-sm max-w-md w-full text-center space-y-6",children:[(0,r.jsx)("div",{className:"w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto",children:(0,r.jsx)(l.Z,{className:"w-10 h-10"})}),(0,r.jsxs)("div",{children:[(0,r.jsx)("h1",{className:"text-2xl font-bold text-slate-900",children:"Payment Cancelled"}),(0,r.jsx)("p",{className:"text-sm text-slate-600 mt-2",children:"The checkout session was cancelled. You can retry anytime from your portal."})]}),(0,r.jsxs)(a.default,{href:"/dashboard/tenant",className:"inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-6 py-3 rounded-xl transition-all text-sm w-full",children:[(0,r.jsx)(c,{className:"w-4 h-4"})," Back to Dashboard"]})]})})}}},function(e){e.O(0,[313,792,971,69,744],function(){return e(e.s=3813)}),_N_E=e.O()}]);

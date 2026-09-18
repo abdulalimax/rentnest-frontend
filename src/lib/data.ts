@@ -16,6 +16,31 @@
   featured?: boolean;
 }
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: "admin" | "landlord" | "tenant";
+  createdAt?: string;
+  status?: string;
+}
+
+export interface RentalRequest {
+  id: string;
+  propertyId: string;
+  propertyTitle: string;
+  tenantId: string;
+  tenantName: string;
+  tenantEmail: string;
+  landlordId: string;
+  status: "Pending" | "Approved" | "Rejected" | "Active" | "Completed" | "Cancelled";
+  rentAmount: number;
+  moveInDate: string;
+  durationMonths: number;
+  createdAt: string;
+  paymentStatus?: "unpaid" | "paid";
+}
+
 export const INITIAL_PROPERTIES: Property[] = [
   {
     id: "p1",
@@ -138,3 +163,46 @@ export const INITIAL_PROPERTIES: Property[] = [
     featured: false,
   }
 ];
+
+export const INITIAL_USERS: User[] = [
+  { id: "u_admin", name: "Super Admin", email: "admin@rentnest.com", role: "admin", createdAt: "2024-01-10", status: "Active" },
+  { id: "u_landlord", name: "David Landlord", email: "landlord@rentnest.com", role: "landlord", createdAt: "2024-01-15", status: "Active" },
+  { id: "u_tenant", name: "John Tenant", email: "tenant@rentnest.com", role: "tenant", createdAt: "2024-02-01", status: "Active" }
+];
+
+export const INITIAL_REQUESTS: RentalRequest[] = [
+  {
+    id: "req_1",
+    propertyId: "p1",
+    propertyTitle: "Modern Luxury Apartment in Gulshan-2",
+    tenantId: "u_tenant",
+    tenantName: "John Tenant",
+    tenantEmail: "tenant@rentnest.com",
+    landlordId: "u_landlord",
+    status: "Approved",
+    rentAmount: 65000,
+    moveInDate: "2026-04-01",
+    durationMonths: 12,
+    createdAt: "2026-03-10",
+    paymentStatus: "unpaid"
+  },
+  {
+    id: "req_2",
+    propertyId: "p2",
+    propertyTitle: "Elegant Residential Flat in Banani",
+    tenantId: "u_tenant",
+    tenantName: "John Tenant",
+    tenantEmail: "tenant@rentnest.com",
+    landlordId: "u_landlord",
+    status: "Pending",
+    rentAmount: 52000,
+    moveInDate: "2026-05-01",
+    durationMonths: 6,
+    createdAt: "2026-03-12",
+    paymentStatus: "unpaid"
+  }
+];
+
+export const initialProperties = INITIAL_PROPERTIES;
+export const initialUsers = INITIAL_USERS;
+export const initialRequests = INITIAL_REQUESTS;

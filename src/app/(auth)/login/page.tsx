@@ -1,141 +1,132 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { UserRole } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { Home, ArrowRight, ShieldCheck, UserCheck, Shield } from "lucide-react";
+import { Building2, Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [role, setRole] = useState<UserRole>("TENANT");
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const router = useRouter();
 
-  const handleQuickLogin = (selectedRole: UserRole) => {
-    let email = "tenant@rentnest.com";
-    if (selectedRole === "LANDLORD") email = "landlord@rentnest.com";
-    if (selectedRole === "ADMIN") email = "admin@rentnest.com";
-
-    setRole(selectedRole);
-    setFormData({ email, password: "password123" });
-    toast.info(`Pre-filled credentials for ${selectedRole}`);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!email || !password) {
+      toast.error("Please fill in both email and password.");
+      return;
+    }
 
-    try {
-      toast.success(`Logged in as ${role}! Redirecting...`);
-      setTimeout(() => {
-        if (role === "TENANT") router.push("/dashboard/tenant");
-        else if (role === "LANDLORD") router.push("/dashboard/landlord");
-        else router.push("/dashboard/admin");
-      }, 1000);
-    } catch (err) {
-      toast.error("Invalid credentials.");
-    } finally {
-      setLoading(false);
+    setLoading(true);
+    const res = await login(email, password);
+    setLoading(false);
+
+    if (res.success) {
+      toast.success("Login successful! Redirecting to dashboard...");
+      const cleanEmail = email.trim().toLowerCase();
+      if (cleanEmail.includes("admin")) router.push("/dashboard/admin");
+      else if (cleanEmail.includes("landlord")) router.push("/dashboard/landlord");
+      else router.push("/dashboard/tenant");
+    } else {
+      toast.error(res.message || "Failed to log in.");
     }
   };
 
+  const setDemoAccount = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-slate-900 mb-2">
-          <Home className="w-7 h-7 text-blue-600" />
-          <span>Rent<span className="text-blue-600">Nest</span></span>
-        </Link>
-        <h2 className="text-2xl font-extrabold text-slate-900">Welcome Back</h2>
-        <p className="mt-1 text-xs text-slate-500">Sign in to access your dashboard</p>
-      </div>
-
-      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-sm border border-slate-200 sm:rounded-2xl sm:px-10 space-y-6">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-2">Select Account Role:</label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickLogin("TENANT")}
-                className={`p-2.5 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1 transition-all ${
-                  role === "TENANT"
-                    ? "border-blue-600 bg-blue-50 text-blue-700 shadow-sm"
-                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <UserCheck className="w-4 h-4" /> Tenant
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickLogin("LANDLORD")}
-                className={`p-2.5 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1 transition-all ${
-                  role === "LANDLORD"
-                    ? "border-blue-600 bg-blue-50 text-blue-700 shadow-sm"
-                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <ShieldCheck className="w-4 h-4" /> Landlord
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickLogin("ADMIN")}
-                className={`p-2.5 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1 transition-all ${
-                  role === "ADMIN"
-                    ? "border-blue-600 bg-blue-50 text-blue-700 shadow-sm"
-                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <Shield className="w-4 h-4" /> Admin
-              </button>
-            </div>
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
+      <div className="bg-white p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-sm max-w-md w-full space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex bg-blue-600 text-white p-3 rounded-2xl">
+            <Building2 className="w-6 h-6" />
           </div>
+          <h1 className="text-2xl font-bold text-slate-900">Sign in to RentNest</h1>
+          <p className="text-xs text-slate-500">Enter your verified credentials to access your portal</p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Email Address</label>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-700">Email Address</label>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
                 type="email"
                 required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="you@example.com"
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@rentnest.com"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+          </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Password</label>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-700">Password</label>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
                 type="password"
                 required
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+          </div>
 
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? "Verifying..." : "Sign In"} <ArrowRight className="w-4 h-4" />
+          </button>
+        </form>
+
+        <div className="border-t border-slate-100 pt-4">
+          <p className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-blue-600" /> Quick Demo Login (1-Click Fill):
+          </p>
+          <div className="grid grid-cols-3 gap-2">
             <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50"
+              type="button"
+              onClick={() => setDemoAccount("tenant@rentnest.com", "tenant123")}
+              className="px-2 py-1.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:text-blue-600 transition-colors text-center"
             >
-              {loading ? "Signing In..." : "Sign In"} <ArrowRight className="w-4 h-4" />
+              Tenant
             </button>
-          </form>
-
-          <div className="text-center pt-2">
-            <p className="text-xs text-slate-500">
-              Don't have an account?{" "}
-              <Link href="/register" className="font-semibold text-blue-600 hover:underline">
-                Register
-              </Link>
-            </p>
+            <button
+              type="button"
+              onClick={() => setDemoAccount("landlord@rentnest.com", "landlord123")}
+              className="px-2 py-1.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:text-blue-600 transition-colors text-center"
+            >
+              Landlord
+            </button>
+            <button
+              type="button"
+              onClick={() => setDemoAccount("admin@rentnest.com", "admin123")}
+              className="px-2 py-1.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:text-blue-600 transition-colors text-center"
+            >
+              Admin
+            </button>
           </div>
         </div>
+
+        <p className="text-center text-xs text-slate-500">
+          Do not have an account?{" "}
+          <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+            Register here
+          </Link>
+        </p>
       </div>
     </div>
   );
