@@ -199,7 +199,7 @@ export default function TenantDashboard() {
                         onClick={() => handlePayViaStripe(req)}
                         className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-md hover:shadow-lg transition duration-150 inline-flex items-center gap-1.5"
                       >
-                        💳 Pay via Stripe
+                        💳 Pay Now (Stripe)
                       </button>
                     )}
                     {req.status === "Active" && (
