@@ -54,8 +54,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     size: 2150,
     amenities: ["Generator Backup", "24/7 Security", "Car Parking", "Elevator", "Balcony", "Gas Connection"],
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Buildings_in_Gulshan_2%2C_Dhaka.jpg/1280px-Buildings_in_Gulshan_2%2C_Dhaka.jpg",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&auto=format&fit=crop&q=80"
     ],
     landlordId: "u_landlord",
     landlordName: "David Landlord",
@@ -74,8 +74,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     size: 1850,
     amenities: ["Elevator", "Car Parking", "CCTV Surveillance", "Modern Kitchen", "Intercom"],
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/A_house_in_Banani_Model_Town%2C_Dhaka_01.jpg/1280px-A_house_in_Banani_Model_Town%2C_Dhaka_01.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/A_house_in_Banani_Model_Town%2C_Dhaka_02.jpg/1280px-A_house_in_Banani_Model_Town%2C_Dhaka_02.jpg"
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&auto=format&fit=crop&q=80"
     ],
     landlordId: "u_landlord",
     landlordName: "David Landlord",
@@ -94,8 +94,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     size: 1650,
     amenities: ["Lakeside Access", "Generator", "Guard Security", "Wide Balcony", "Tiled Flooring"],
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Apartment_buildings_in_Dhaka_%2830569828554%29.jpg/1280px-Apartment_buildings_in_Dhaka_%2830569828554%29.jpg",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&auto=format&fit=crop&q=80"
     ],
     landlordId: "u_landlord",
     landlordName: "David Landlord",
@@ -114,8 +114,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     size: 1550,
     amenities: ["Metro Rail Proximity", "Elevator", "Rooftop Garden", "Security Guards", "Dedicated Parking"],
     images: [
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=1200&auto=format&fit=crop&q=80"
     ],
     landlordId: "u_landlord",
     landlordName: "David Landlord",
@@ -134,8 +134,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     size: 1250,
     amenities: ["Community Hall", "Gated Security", "Elevator", "Continuous Water Supply", "Maintenance Staff"],
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Concord_Apartment_Buildings%2C_Ajimpur%2C_Dhaka%2C_Bangladesh.jpg/1280px-Concord_Apartment_Buildings%2C_Ajimpur%2C_Dhaka%2C_Bangladesh.jpg",
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&auto=format&fit=crop&q=80"
     ],
     landlordId: "u_landlord",
     landlordName: "David Landlord",
@@ -154,8 +154,8 @@ export const INITIAL_PROPERTIES: Property[] = [
     size: 1400,
     amenities: ["DOHS Security", "Park & Walking Track", "Reserved Parking", "CCTV Monitoring", "Clean Air"],
     images: [
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=1200&auto=format&fit=crop&q=80"
     ],
     landlordId: "u_landlord",
     landlordName: "David Landlord",
