@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+
 import { initialProperties } from "@/lib/data";
 import { Search, MapPin, DollarSign, Building, Shield, Star } from "lucide-react";
 
@@ -10,7 +10,7 @@ export default function Home() {
     <div className="space-y-16 pb-16">
       <section className="relative bg-slate-900 text-white py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="absolute inset-0 opacity-20">
-          <Image
+          <img
             src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1600&q=80"
             alt="Hero Background"
             fill
@@ -58,7 +58,7 @@ export default function Home() {
               className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col"
             >
               <div className="relative h-56 w-full">
-                <Image
+                <img
                   src={property.image}
                   alt={property.title}
                   fill

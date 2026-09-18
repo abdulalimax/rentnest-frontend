@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+
 import { initialProperties } from "@/lib/data";
 import { Search, MapPin, Filter } from "lucide-react";
 
@@ -64,7 +64,7 @@ export default function PropertiesPage() {
               className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col"
             >
               <div className="relative h-56 w-full">
-                <Image
+                <img
                   src={property.image}
                   alt={property.title}
                   fill

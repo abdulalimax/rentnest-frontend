@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+
 import { useParams, useRouter } from "next/navigation";
 import { initialProperties } from "@/lib/data";
 import { useAuth } from "@/context/AuthContext";
@@ -39,7 +39,7 @@ export default function PropertyDetailsPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
       <div className="relative h-[400px] w-full rounded-3xl overflow-hidden shadow-sm">
-        <Image src={property.image} alt={property.title} fill className="object-cover" priority />
+        <img src={property.image} alt={property.title} fill className="object-cover" priority />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
