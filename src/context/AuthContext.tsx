@@ -43,10 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem("rentnest_auth_user");
-      if (savedUser && savedUser !== "undefined" && savedUser !== "null") {
-        const parsed = JSON.parse(savedUser);
-        // নিশ্চিত করা যে এটি কোনো ডেমো বা হার্ডকোড করা সুপার অ্যাডমিন সেশন নয় যদি না ইউজার নিজে লগইন করে
-        setUser(parsed);
+      if (savedUser && savedUser !== "null" && savedUser !== "undefined") {
+        setUser(JSON.parse(savedUser));
       } else {
         setUser(null);
       }
