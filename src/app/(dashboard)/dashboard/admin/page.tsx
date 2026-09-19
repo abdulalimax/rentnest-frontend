@@ -1,3 +1,4 @@
+import { getStoredUsers, toggleUserStatus, UserAccount } from "@/lib/syncEngine";
 "use client";
 
 import { useState } from "react";
@@ -7,6 +8,17 @@ import { toast } from "sonner";
 import { Ban, CheckCircle } from "lucide-react";
 
 export default function AdminDashboard() {
+
+  useEffect(() => {
+    const loadUsers = () => {
+      const allUsers = getStoredUsers();
+      setUsers(allUsers);
+    };
+    loadUsers();
+    window.addEventListener("rentnest_users_updated", loadUsers);
+    return () => window.removeEventListener("rentnest_users_updated", loadUsers);
+  }, []);
+  
   const [users, setUsers] = useState<User[]>(initialUsers);
 
   const toggleBan = (id: string) => {

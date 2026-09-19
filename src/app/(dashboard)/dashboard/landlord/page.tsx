@@ -1,9 +1,21 @@
+import { getStoredRequests, updateRequestStatus, RentalRequest } from "@/lib/syncEngine";
 ﻿"use client";
 
 import { useState, useEffect } from "react";
 import { initialProperties, initialRequests, Property, RentalRequest } from "@/lib/data";
 
 export default function LandlordDashboard() {
+
+  useEffect(() => {
+    const loadRequests = () => {
+      const all = getStoredRequests();
+      setRequests(all);
+    };
+    loadRequests();
+    window.addEventListener("rentnest_requests_updated", loadRequests);
+    return () => window.removeEventListener("rentnest_requests_updated", loadRequests);
+  }, []);
+  
 
   useEffect(() => {
     try {
@@ -81,15 +93,9 @@ export default function LandlordDashboard() {
   };
 
   // Status Update (Approve / Reject)
-  const handleStatusChange = (id: string, newStatus: string) => {
-    try {
-      const stored = JSON.parse(localStorage.getItem("rentnest_shared_requests") || "[]");
-      const updated = stored.map((r: any) => r.id === id ? { ...r, status: newStatus } : r);
-      localStorage.setItem("rentnest_shared_requests", JSON.stringify(updated));
-    } catch (e) {}
-    const updated = requests.map((req) => (req.id === id ? { ...req, status } : req));
-    saveRequests(updated);
-    showToast(`Request ${status} successfully!`);
+  const handleStatusChange = (id: string, newStatus: "Approved" | "Rejected") => {
+    updateRequestStatus(id, newStatus);
+    toast.success(`Request successfully ${newStatus.toLowerCase()}!`);
   };
 
   // Delete Property

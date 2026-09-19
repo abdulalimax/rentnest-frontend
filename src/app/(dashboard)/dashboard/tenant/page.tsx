@@ -1,3 +1,4 @@
+import { getStoredRequests, updateRequestStatus, RentalRequest } from "@/lib/syncEngine";
 ﻿"use client";
 
 import { useState, useEffect } from "react";
@@ -21,6 +22,17 @@ interface PaymentTransaction {
 }
 
 export default function TenantDashboard() {
+
+  useEffect(() => {
+    const loadData = () => {
+      const all = getStoredRequests();
+      setRequests(all);
+    };
+    loadData();
+    window.addEventListener("rentnest_requests_updated", loadData);
+    return () => window.removeEventListener("rentnest_requests_updated", loadData);
+  }, []);
+  
   const [requests, setRequests] = useState<RentalRequest[]>([]);
   const [payments, setPayments] = useState<PaymentTransaction[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);

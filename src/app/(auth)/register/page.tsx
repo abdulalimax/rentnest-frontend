@@ -1,3 +1,4 @@
+import { saveUser } from "@/lib/syncEngine";
 ﻿"use client";
 
 import { useState } from "react";
@@ -33,7 +34,12 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (res.success) {
-      toast.success("Account created successfully! Redirecting...");
+      saveUser({
+        name: formData?.name || name || "Registered User",
+        email: formData?.email || email || "user@rentnest.com",
+        role: (formData?.role || role || "tenant").toLowerCase(),
+      });
+toast.success("Account created successfully! Redirecting...");
       router.push(`/dashboard/${role}`);
     } else {
       toast.error(res.message || "Registration failed.");
