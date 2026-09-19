@@ -41,13 +41,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("rentnest_auth_user");
-    if (savedUser) {
-      try {
+    try {
+      const savedUser = localStorage.getItem("rentnest_auth_user");
+      if (savedUser) {
         setUser(JSON.parse(savedUser));
-      } catch (e) {
-        localStorage.removeItem("rentnest_auth_user");
+      } else {
+        setUser(null);
       }
+    } catch (e) {
+      setUser(null);
     }
     setIsLoading(false);
   }, []);
@@ -81,13 +83,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const cleanEmail = email.trim().toLowerCase();
     const registeredUsers = JSON.parse(localStorage.getItem("rentnest_registered_users") || "{}");
 
-    if (DEMO_USERS[cleanEmail] || registeredUsers[cleanEmail]) {
+    // শুধুমাত্র যদি এই ইমেইলে পাসওয়ার্ড সহ অ্যাকাউন্ট তৈরি থাকে তবেই duplicate বলবে
+    if (registeredUsers[cleanEmail]) {
       return { success: false, message: "Email is already registered. Please login." };
     }
 
     const newUser: User = {
       id: "u_" + Date.now().toString().slice(-6),
-      name,
+      name: name.trim(),
       email: cleanEmail,
       role,
     };
@@ -95,7 +98,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     registeredUsers[cleanEmail] = { pass, user: newUser };
     localStorage.setItem("rentnest_registered_users", JSON.stringify(registeredUsers));
 
-    setAuthCookies(newUser);
+    // Admin Dashboard-এর rentnest_all_users অ্যারেতে সাথে সাথে সেভ
+    try {
+      const allUsers = JSON.parse(localStorage.getItem("rentnest_all_users") || "[]");
+      const filtered = allUsers.filter((u: any) => u.email?.toLowerCase() !== cleanEmail);
+      const adminEntry = {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        status: "Active"
+      };
+      localStorage.setItem("rentnest_all_users", JSON.stringify([adminEntry, ...filtered]));
+      window.dispatchEvent(new Event("rentnest_users_updated"));
+      window.dispatchEvent(new Event("storage"));
+    } catch (err) {
+      console.error(err);
+    }
+
+    // রেজিস্ট্রেশনের পর অটো-লগইন হবে না, ইউজারকে লগইন করতে হবে
     return { success: true };
   };
 

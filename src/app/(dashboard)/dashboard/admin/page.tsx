@@ -10,6 +10,28 @@ import { Ban, CheckCircle } from "lucide-react";
 
 export default function AdminDashboard() {
 
+  useEffect(() => {
+    const syncAdminUsers = () => {
+      try {
+        const stored = localStorage.getItem("rentnest_all_users");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            setUsers(parsed);
+          }
+        }
+      } catch (err) {}
+    };
+    syncAdminUsers();
+    window.addEventListener("rentnest_users_updated", syncAdminUsers);
+    window.addEventListener("storage", syncAdminUsers);
+    return () => {
+      window.removeEventListener("rentnest_users_updated", syncAdminUsers);
+      window.removeEventListener("storage", syncAdminUsers);
+    };
+  }, []);
+  
+
   const handleToggleBan = (id: string) => {
     const updated = users.map((u: any) => 
       u.id === id ? { ...u, status: u.status === "Banned" ? "Active" : "Banned" } : u

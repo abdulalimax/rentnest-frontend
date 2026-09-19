@@ -35,14 +35,27 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (res.success) {
-      saveUser({
-        name: formData?.name || name || "Registered User",
-        email: formData?.email || email || "user@rentnest.com",
-        role: (formData?.role || role || "tenant").toLowerCase(),
-      });
-toast.success("Account created successfully! Redirecting...");
-      router.push(`/dashboard/${role}`);
-    } else {
+        try {
+          const allUsers = JSON.parse(localStorage.getItem("rentnest_all_users") || "[]");
+          const exists = allUsers.some((u: any) => u.email?.toLowerCase() === email.trim().toLowerCase());
+          if (!exists) {
+            const userObj = {
+              id: "usr_" + Date.now(),
+              name: name.trim(),
+              email: email.trim().toLowerCase(),
+              role: role,
+              status: "Active"
+            };
+            localStorage.setItem("rentnest_all_users", JSON.stringify([userObj, ...allUsers]));
+            window.dispatchEvent(new Event("rentnest_users_updated"));
+            window.dispatchEvent(new Event("storage"));
+          }
+        } catch (e) {}
+
+        toast.success("Account created successfully! Redirecting...");
+        toast.success("Registration complete! Please login with your credentials.");
+        router.push("/login");
+      } else {
       toast.error(res.message || "Registration failed.");
     }
   };
