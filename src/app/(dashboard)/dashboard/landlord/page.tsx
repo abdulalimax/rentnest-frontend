@@ -7,6 +7,39 @@ import { initialProperties, initialRequests, Property, RentalRequest } from "@/l
 
 export default function LandlordDashboard() {
 
+  const handleApprove = (id: string) => {
+    try {
+      const updated = requests.map((req: any) => 
+        req.id === id ? { ...req, status: "Approved" } : req
+      );
+      setRequests(updated);
+      localStorage.setItem("rentnest_shared_requests", JSON.stringify(updated));
+      localStorage.setItem("rentnest_all_requests", JSON.stringify(updated));
+      localStorage.setItem("rentnest_requests", JSON.stringify(updated));
+      window.dispatchEvent(new Event("rentnest_requests_updated"));
+      window.dispatchEvent(new Event("storage"));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleReject = (id: string) => {
+    try {
+      const updated = requests.map((req: any) => 
+        req.id === id ? { ...req, status: "Rejected" } : req
+      );
+      setRequests(updated);
+      localStorage.setItem("rentnest_shared_requests", JSON.stringify(updated));
+      localStorage.setItem("rentnest_all_requests", JSON.stringify(updated));
+      localStorage.setItem("rentnest_requests", JSON.stringify(updated));
+      window.dispatchEvent(new Event("rentnest_requests_updated"));
+      window.dispatchEvent(new Event("storage"));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  
+
   useEffect(() => {
     const loadRequests = () => {
       const all = getStoredRequests();
@@ -100,6 +133,8 @@ export default function LandlordDashboard() {
       setProperties(initialProperties);
       localStorage.setItem("rentnest_properties", JSON.stringify(initialProperties));
     window.dispatchEvent(new Event("rentnest_properties_updated"));
+    window.dispatchEvent(new Event("storage"));
+    window.dispatchEvent(new Event("rentnest_properties_updated"));
     }
 
     const savedReqs = localStorage.getItem("rentnest_requests");
@@ -113,6 +148,8 @@ export default function LandlordDashboard() {
   const saveProperties = (newProps: Property[]) => {
     setProperties(newProps);
     localStorage.setItem("rentnest_properties", JSON.stringify(newProps));
+    window.dispatchEvent(new Event("rentnest_properties_updated"));
+    window.dispatchEvent(new Event("storage"));
     window.dispatchEvent(new Event("rentnest_properties_updated"));
   };
 
@@ -288,18 +325,8 @@ export default function LandlordDashboard() {
                     </span>
                   </td>
                   <td className="py-4 px-6 text-right space-x-2">
-                    <button
-                      onClick={() => handleStatusChange(req.id, "Approved")}
-                      className="inline-flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold px-3 py-1.5 rounded-md text-xs border border-emerald-200 transition"
-                    >
-                      ✓ Approve
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(req.id, "Rejected")}
-                      className="inline-flex items-center gap-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold px-3 py-1.5 rounded-md text-xs border border-rose-200 transition"
-                    >
-                      ✕ Reject
-                    </button>
+                    <button onClick={() => handleApprove(req.id)} className="px-3 py-1 bg-green-50 text-green-700 hover:bg-green-100 rounded-md border border-green-200 text-sm font-medium">✓ Approve</button>
+                    <button onClick={() => handleReject(req.id)} className="px-3 py-1 bg-red-50 text-red-700 hover:bg-red-100 rounded-md border border-red-200 text-sm font-medium">✕ Reject</button>
                   </td>
                 </tr>
               ))}
