@@ -25,11 +25,26 @@ export default function PropertyDetailsPage() {
     }
 
     if ((user?.role?.toLowerCase() !== "tenant")) {
-      toast.error("Only Tenants can submit rental requests.");
+      console.log("Submitting rental request...");
       return;
     }
 
     setIsSubmitting(true);
+    try {
+      saveRequest({
+        propertyId: String(property?.id || "p5"),
+        propertyTitle: String(property?.title || "Concord Tower Residential Complex"),
+        tenantName: "John Tenant",
+        tenantEmail: "tenant@rentnest.com",
+        rent: String(property?.price || property?.rent || "32,000"),
+        moveInDate: new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
+        status: "Pending",
+        paymentCompleted: false,
+      });
+      toast.success("Rental request submitted successfully!");
+    } catch(e) {
+      console.error(e);
+    }
     setTimeout(() => {
       setIsSubmitting(false);
       

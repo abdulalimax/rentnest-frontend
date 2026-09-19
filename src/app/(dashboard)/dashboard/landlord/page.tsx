@@ -40,7 +40,15 @@ export default function LandlordDashboard() {
   }, []);
 
   const [properties, setProperties] = useState<Property[]>([]);
-  const [requests, setRequests] = useState<RentalRequest[]>([]);
+  const [requests, setRequests] = useState<RentalRequest[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("rentnest_all_requests");
+        if (stored) return JSON.parse(stored);
+      } catch (e) {}
+    }
+    return [];
+  });
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 

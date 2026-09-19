@@ -33,7 +33,15 @@ export default function TenantDashboard() {
     return () => window.removeEventListener("rentnest_requests_updated", loadData);
   }, []);
   
-  const [requests, setRequests] = useState<RentalRequest[]>([]);
+  const [requests, setRequests] = useState<RentalRequest[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("rentnest_all_requests");
+        if (stored) return JSON.parse(stored);
+      } catch (e) {}
+    }
+    return [];
+  });
   const [payments, setPayments] = useState<PaymentTransaction[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);

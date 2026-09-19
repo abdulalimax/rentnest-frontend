@@ -19,7 +19,15 @@ export default function AdminDashboard() {
     return () => window.removeEventListener("rentnest_users_updated", loadUsers);
   }, []);
   
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("rentnest_all_users");
+        if (stored) return JSON.parse(stored);
+      } catch (e) {}
+    }
+    return initialUsers;
+  });
 
   const toggleBan = (id: string) => {
     setUsers((prev) =>
