@@ -36,10 +36,7 @@ export default function LoginPage() {
     }
   };
 
-  const setDemoAccount = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-  };
+  
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
@@ -83,41 +80,9 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {loading ? "Verifying..." : "Sign In"} <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
-
-        <div className="border-t border-slate-100 pt-4">
-          <p className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-600" /> Quick Demo Login (1-Click Fill):
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => setDemoAccount("tenant@rentnest.com", "tenant123")}
-              className="px-2 py-1.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:text-blue-600 transition-colors text-center"
-            >
-              Tenant
-            </button>
-            <button
-              type="button"
-              onClick={() => setDemoAccount("landlord@rentnest.com", "landlord123")}
-              className="px-2 py-1.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:text-blue-600 transition-colors text-center"
-            >
-              Landlord
-            </button>
-            <button
-              type="button"
-              onClick={() => setDemoAccount("admin@rentnest.com", "admin123")}
-              className="px-2 py-1.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:text-blue-600 transition-colors text-center"
-            >
-              Admin
-            </button>
+          
+            
+            
           </div>
         </div>
 
