@@ -23,7 +23,7 @@ export default function PropertyDetailsPage() {
       return;
     }
 
-    if (user.role !== "Tenant") {
+    if ((user?.role?.toLowerCase() !== "tenant")) {
       toast.error("Only Tenants can submit rental requests.");
       return;
     }
