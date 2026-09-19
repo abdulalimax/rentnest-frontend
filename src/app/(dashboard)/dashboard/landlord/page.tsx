@@ -80,6 +80,7 @@ export default function LandlordDashboard() {
     } else {
       setProperties(initialProperties);
       localStorage.setItem("rentnest_properties", JSON.stringify(initialProperties));
+    window.dispatchEvent(new Event("rentnest_properties_updated"));
     }
 
     const savedReqs = localStorage.getItem("rentnest_requests");
@@ -94,6 +95,7 @@ export default function LandlordDashboard() {
   const saveProperties = (newProps: Property[]) => {
     setProperties(newProps);
     localStorage.setItem("rentnest_properties", JSON.stringify(newProps));
+    window.dispatchEvent(new Event("rentnest_properties_updated"));
   };
 
   const saveRequests = (newReqs: RentalRequest[]) => {

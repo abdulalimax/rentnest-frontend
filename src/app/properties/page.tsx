@@ -1,16 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 import { initialProperties } from "@/lib/data";
 import { Search, MapPin, Filter } from "lucide-react";
 
 export default function PropertiesPage() {
+  const [allProperties, setAllProperties] = useState<any[]>(initialProperties);
+
+  useEffect(() => {
+    const syncProps = () => {
+      try {
+        const saved = localStorage.getItem("rentnest_properties");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setAllProperties(parsed);
+            return;
+          }
+        }
+      } catch (e) {}
+      setAllProperties(initialProperties);
+    };
+
+    syncProps();
+    window.addEventListener("rentnest_properties_updated", syncProps);
+    window.addEventListener("storage", syncProps);
+    return () => {
+      window.removeEventListener("rentnest_properties_updated", syncProps);
+      window.removeEventListener("storage", syncProps);
+    };
+  }, []);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("All");
 
-  const filteredProperties = initialProperties.filter((p) => {
+  const filteredProperties = allProperties.filter((p) => {
     const matchesSearch =
       p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.location.toLowerCase().includes(searchTerm.toLowerCase());
