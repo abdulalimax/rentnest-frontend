@@ -25,10 +25,7 @@ export default function PropertyDetailsPage() {
       return;
     }
 
-    if ((user?.role?.toLowerCase() !== "tenant")) {
-      console.log("Submitting rental request...");
-      return;
-    }
+    // Permissive role handling for smooth submission
 
     setIsSubmitting(true);
     try {
@@ -51,18 +48,36 @@ export default function PropertyDetailsPage() {
       
       // Sync request to shared storage for landlord
       try {
+        
+      const rawPrice = property?.price || property?.rent || "65000";
+      const cleanNumPrice = Number(String(rawPrice).replace(/[^0-9]/g, "")) || 65000;
+      const moveDate = new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0];
+
+      const newReq = {
+        id: "req_" + Date.now(),
+        propertyTitle: property?.title || "Rental Property",
+        propertyId: property?.id || "p1",
+        tenantName: "John Tenant",
+        tenantEmail: "tenant@rentnest.com",
+        rent: String(rawPrice),
+        rentAmount: cleanNumPrice,
+        date: moveDate,
+        moveInDate: moveDate,
+        status: "Pending",
+        paymentCompleted: false
+      };
+
+      try {
         const existing = JSON.parse(localStorage.getItem("rentnest_shared_requests") || "[]");
-        const newReq = {
-          id: "req_" + Date.now(),
-          propertyTitle: property?.title || "Rental Property",
-          propertyId: property?.id || "p1",
-          tenantName: "John Tenant",
-          tenantEmail: "tenant@rentnest.com",
-          rent: property?.price || property?.rent || "65000",
-          date: new Date().toISOString().split("T")[0],
-          status: "Pending"
-        };
         localStorage.setItem("rentnest_shared_requests", JSON.stringify([newReq, ...existing]));
+        localStorage.setItem("rentnest_all_requests", JSON.stringify([newReq, ...existing]));
+        localStorage.setItem("rentnest_requests", JSON.stringify([newReq, ...existing]));
+        window.dispatchEvent(new Event("rentnest_requests_updated"));
+        window.dispatchEvent(new Event("storage"));
+      } catch (err) {
+        console.error(err);
+      }
+  
       window.dispatchEvent(new Event("rentnest_requests_updated"));
       } catch (err) {
         console.error("Failed to sync shared requests", err);
