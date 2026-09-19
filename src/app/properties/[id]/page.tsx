@@ -63,6 +63,7 @@ export default function PropertyDetailsPage() {
           status: "Pending"
         };
         localStorage.setItem("rentnest_shared_requests", JSON.stringify([newReq, ...existing]));
+      window.dispatchEvent(new Event("rentnest_requests_updated"));
       } catch (err) {
         console.error("Failed to sync shared requests", err);
       }

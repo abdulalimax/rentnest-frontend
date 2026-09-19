@@ -30,6 +30,21 @@ export default function AdminDashboard() {
     return initialUsers;
   });
 
+  useEffect(() => {
+    const loadAdminUsers = () => {
+      try {
+        const stored = localStorage.getItem("rentnest_all_users");
+        if (stored) setUsers(JSON.parse(stored));
+      } catch (e) {}
+    };
+    window.addEventListener("rentnest_users_updated", loadAdminUsers);
+    window.addEventListener("storage", loadAdminUsers);
+    return () => {
+      window.removeEventListener("rentnest_users_updated", loadAdminUsers);
+      window.removeEventListener("storage", loadAdminUsers);
+    };
+  }, []);
+
   const toggleBan = (id: string) => {
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, isBanned: !u.isBanned } : u))

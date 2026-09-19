@@ -37,12 +37,27 @@ export default function TenantDashboard() {
   const [requests, setRequests] = useState<RentalRequest[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const stored = localStorage.getItem("rentnest_all_requests");
+        const stored = localStorage.getItem("rentnest_shared_requests") || localStorage.getItem("rentnest_all_requests") || localStorage.getItem("rentnest_requests");
         if (stored) return JSON.parse(stored);
       } catch (e) {}
     }
     return [];
   });
+
+  useEffect(() => {
+    const loadTenantReqs = () => {
+      try {
+        const stored = localStorage.getItem("rentnest_shared_requests") || localStorage.getItem("rentnest_all_requests") || localStorage.getItem("rentnest_requests");
+        if (stored) setRequests(JSON.parse(stored));
+      } catch (e) {}
+    };
+    window.addEventListener("rentnest_requests_updated", loadTenantReqs);
+    window.addEventListener("storage", loadTenantReqs);
+    return () => {
+      window.removeEventListener("rentnest_requests_updated", loadTenantReqs);
+      window.removeEventListener("storage", loadTenantReqs);
+    };
+  }, []);
   const [payments, setPayments] = useState<PaymentTransaction[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);

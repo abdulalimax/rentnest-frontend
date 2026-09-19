@@ -44,12 +44,31 @@ export default function LandlordDashboard() {
   const [requests, setRequests] = useState<RentalRequest[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const stored = localStorage.getItem("rentnest_all_requests");
+        const stored = localStorage.getItem("rentnest_shared_requests") || localStorage.getItem("rentnest_all_requests") || localStorage.getItem("rentnest_requests");
         if (stored) return JSON.parse(stored);
       } catch (e) {}
     }
-    return [];
+    return initialRequests;
   });
+
+  useEffect(() => {
+    const loadLandlordData = () => {
+      try {
+        const stored = localStorage.getItem("rentnest_shared_requests") || localStorage.getItem("rentnest_all_requests") || localStorage.getItem("rentnest_requests");
+        if (stored) setRequests(JSON.parse(stored));
+        const storedProps = localStorage.getItem("rentnest_properties");
+        if (storedProps) setProperties(JSON.parse(storedProps));
+      } catch (e) {}
+    };
+    window.addEventListener("rentnest_requests_updated", loadLandlordData);
+    window.addEventListener("rentnest_properties_updated", loadLandlordData);
+    window.addEventListener("storage", loadLandlordData);
+    return () => {
+      window.removeEventListener("rentnest_requests_updated", loadLandlordData);
+      window.removeEventListener("rentnest_properties_updated", loadLandlordData);
+      window.removeEventListener("storage", loadLandlordData);
+    };
+  }, []);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
@@ -87,8 +106,7 @@ export default function LandlordDashboard() {
     if (savedReqs) {
       setRequests(JSON.parse(savedReqs));
     } else {
-      setRequests(initialRequests);
-      localStorage.setItem("rentnest_requests", JSON.stringify(initialRequests));
+      // Keep existing requests synced
     }
   }, []);
 
