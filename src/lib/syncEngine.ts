@@ -98,3 +98,50 @@ export const updateRequestStatus = (id: string, status: "Pending" | "Approved" |
   localStorage.setItem("rentnest_all_requests", JSON.stringify(updated));
   window.dispatchEvent(new Event("rentnest_requests_updated"));
 };
+
+
+const DEFAULT_USERS: UserAccount[] = [
+  { id: "u1", name: "Sarah Jenkins", email: "sarah.j@example.com", role: "landlord", status: "active", createdAt: "2026-01-15" },
+  { id: "u2", name: "David Miller", email: "david.m@example.com", role: "tenant", status: "active", createdAt: "2026-02-01" },
+  { id: "u3", name: "Alex Wong", email: "alex.w@example.com", role: "tenant", status: "banned", createdAt: "2026-02-18" },
+  { id: "u4", name: "Emma Davis", email: "emma.d@example.com", role: "landlord", status: "active", createdAt: "2026-03-05" }
+];
+
+export const getStoredUsers = (): UserAccount[] => {
+  if (typeof window === "undefined") return DEFAULT_USERS;
+  const data = localStorage.getItem("rentnest_all_users");
+  if (!data) {
+    localStorage.setItem("rentnest_all_users", JSON.stringify(DEFAULT_USERS));
+    return DEFAULT_USERS;
+  }
+  try {
+    return JSON.parse(data);
+  } catch {
+    return DEFAULT_USERS;
+  }
+};
+
+export const saveUser = (user: Partial<UserAccount>) => {
+  const users = getStoredUsers();
+  const newUser: UserAccount = {
+    id: "u_" + Date.now(),
+    name: user.name || "New User",
+    email: user.email || "user@example.com",
+    role: user.role || "tenant",
+    status: user.status || "active",
+    createdAt: new Date().toISOString().split("T")[0]
+  };
+  const updated = [newUser, ...users];
+  localStorage.setItem("rentnest_all_users", JSON.stringify(updated));
+  window.dispatchEvent(new Event("rentnest_users_updated"));
+  return newUser;
+};
+
+export const toggleUserStatus = (id: string) => {
+  const users = getStoredUsers();
+  const updated = users.map((u) =>
+    u.id === id ? { ...u, status: (u.status === "active" ? "banned" : "active") as "active" | "banned" } : u
+  );
+  localStorage.setItem("rentnest_all_users", JSON.stringify(updated));
+  window.dispatchEvent(new Event("rentnest_users_updated"));
+};
