@@ -1,5 +1,6 @@
-import { getStoredUsers, toggleUserStatus, UserAccount } from "@/lib/syncEngine";
 "use client";
+
+import { getStoredUsers, toggleUserStatus, UserAccount } from "@/lib/syncEngine";
 
 import { useState } from "react";
 import { initialUsers } from "@/lib/data";

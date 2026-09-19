@@ -1,6 +1,7 @@
-import { saveUser } from "@/lib/syncEngine";
-﻿"use client";
+"use client";
 
+import { saveUser } from "@/lib/syncEngine";
+﻿
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

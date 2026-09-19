@@ -1,6 +1,7 @@
-import { getStoredRequests, updateRequestStatus, RentalRequest } from "@/lib/syncEngine";
-﻿"use client";
+"use client";
 
+import { getStoredRequests, updateRequestStatus, RentalRequest } from "@/lib/syncEngine";
+﻿
 import { useState, useEffect } from "react";
 import { initialProperties, initialRequests, Property, RentalRequest } from "@/lib/data";
 
