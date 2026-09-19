@@ -31,7 +31,26 @@ export default function PropertyDetailsPage() {
     setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
-      toast.success("Rental request submitted successfully! Pending Landlord approval.");
+      
+      // Sync request to shared storage for landlord
+      try {
+        const existing = JSON.parse(localStorage.getItem("rentnest_shared_requests") || "[]");
+        const newReq = {
+          id: "req_" + Date.now(),
+          propertyTitle: property?.title || "Rental Property",
+          propertyId: property?.id || "p1",
+          tenantName: "John Tenant",
+          tenantEmail: "tenant@rentnest.com",
+          rent: property?.price || property?.rent || "65000",
+          date: new Date().toISOString().split("T")[0],
+          status: "Pending"
+        };
+        localStorage.setItem("rentnest_shared_requests", JSON.stringify([newReq, ...existing]));
+      } catch (err) {
+        console.error("Failed to sync shared requests", err);
+      }
+      
+toast.success("Rental request submitted successfully! Pending Landlord approval.");
       router.push("/dashboard/tenant");
     }, 1000);
   };

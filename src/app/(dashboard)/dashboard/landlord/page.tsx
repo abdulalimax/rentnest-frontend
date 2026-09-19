@@ -4,6 +4,29 @@ import { useState, useEffect } from "react";
 import { initialProperties, initialRequests, Property, RentalRequest } from "@/lib/data";
 
 export default function LandlordDashboard() {
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("rentnest_shared_requests");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setRequests(prev => {
+            const combined = [...parsed];
+            prev.forEach(pItem => {
+              if (!combined.some(c => c.id === pItem.id)) {
+                combined.push(pItem);
+              }
+            });
+            return combined;
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Shared sync error", e);
+    }
+  }, []);
+
   const [properties, setProperties] = useState<Property[]>([]);
   const [requests, setRequests] = useState<RentalRequest[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -58,7 +81,12 @@ export default function LandlordDashboard() {
   };
 
   // Status Update (Approve / Reject)
-  const handleStatusChange = (id: string, status: "Approved" | "Rejected") => {
+  const handleStatusChange = (id: string, newStatus: string) => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("rentnest_shared_requests") || "[]");
+      const updated = stored.map((r: any) => r.id === id ? { ...r, status: newStatus } : r);
+      localStorage.setItem("rentnest_shared_requests", JSON.stringify(updated));
+    } catch (e) {}
     const updated = requests.map((req) => (req.id === id ? { ...req, status } : req));
     saveRequests(updated);
     showToast(`Request ${status} successfully!`);
