@@ -40,6 +40,14 @@
       "static/chunks/313-575551c57e2e6772.js",
       "static/chunks/app/(auth)/register/page-12016e44fb666955.js"
     ],
+    "/(dashboard)/dashboard/admin/page": [
+      "static/chunks/webpack-8fc49a605c100205.js",
+      "static/chunks/fd9d1056-9221c68f157d58eb.js",
+      "static/chunks/69-1305dcf8f7dc678c.js",
+      "static/chunks/main-app-9db21ecea84b3cc7.js",
+      "static/chunks/313-575551c57e2e6772.js",
+      "static/chunks/app/(dashboard)/dashboard/admin/page-d0ee283c71929d1d.js"
+    ],
     "/(auth)/login/page": [
       "static/chunks/webpack-8fc49a605c100205.js",
       "static/chunks/fd9d1056-9221c68f157d58eb.js",
@@ -48,14 +56,6 @@
       "static/chunks/792-4d90ba327af127b9.js",
       "static/chunks/313-575551c57e2e6772.js",
       "static/chunks/app/(auth)/login/page-e0e80b0457c5a78e.js"
-    ],
-    "/(dashboard)/dashboard/admin/page": [
-      "static/chunks/webpack-8fc49a605c100205.js",
-      "static/chunks/fd9d1056-9221c68f157d58eb.js",
-      "static/chunks/69-1305dcf8f7dc678c.js",
-      "static/chunks/main-app-9db21ecea84b3cc7.js",
-      "static/chunks/313-575551c57e2e6772.js",
-      "static/chunks/app/(dashboard)/dashboard/admin/page-4dcaf96bc599711f.js"
     ],
     "/(dashboard)/dashboard/tenant/page": [
       "static/chunks/webpack-8fc49a605c100205.js",
@@ -79,14 +79,6 @@
       "static/chunks/792-4d90ba327af127b9.js",
       "static/chunks/app/page-9d80f1cf2667ab00.js"
     ],
-    "/payment/cancel/page": [
-      "static/chunks/webpack-8fc49a605c100205.js",
-      "static/chunks/fd9d1056-9221c68f157d58eb.js",
-      "static/chunks/69-1305dcf8f7dc678c.js",
-      "static/chunks/main-app-9db21ecea84b3cc7.js",
-      "static/chunks/792-4d90ba327af127b9.js",
-      "static/chunks/app/payment/cancel/page-42b04158b4633768.js"
-    ],
     "/payment/success/page": [
       "static/chunks/webpack-8fc49a605c100205.js",
       "static/chunks/fd9d1056-9221c68f157d58eb.js",
@@ -94,6 +86,14 @@
       "static/chunks/main-app-9db21ecea84b3cc7.js",
       "static/chunks/792-4d90ba327af127b9.js",
       "static/chunks/app/payment/success/page-4ebff54af8b15140.js"
+    ],
+    "/payment/cancel/page": [
+      "static/chunks/webpack-8fc49a605c100205.js",
+      "static/chunks/fd9d1056-9221c68f157d58eb.js",
+      "static/chunks/69-1305dcf8f7dc678c.js",
+      "static/chunks/main-app-9db21ecea84b3cc7.js",
+      "static/chunks/792-4d90ba327af127b9.js",
+      "static/chunks/app/payment/cancel/page-42b04158b4633768.js"
     ],
     "/properties/[id]/page": [
       "static/chunks/webpack-8fc49a605c100205.js",

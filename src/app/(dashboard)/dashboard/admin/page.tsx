@@ -2,7 +2,7 @@
 
 import { getStoredUsers, toggleUserStatus, UserAccount } from "@/lib/syncEngine";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { initialUsers } from "@/lib/data";
 import { User } from "@/types";
 import { toast } from "sonner";
