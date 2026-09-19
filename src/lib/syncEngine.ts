@@ -1,12 +1,10 @@
-"use client";
-
 export interface RentalRequest {
   id: string;
   propertyId: string;
   propertyTitle: string;
   tenantName: string;
   tenantEmail: string;
-  rent: string;
+  rentAmount: number;
   moveInDate: string;
   status: "Pending" | "Approved" | "Rejected" | "Active";
   paymentCompleted?: boolean;
@@ -28,7 +26,7 @@ const DEFAULT_REQUESTS: RentalRequest[] = [
     propertyTitle: "Modern Luxury Apartment in Gulshan-2",
     tenantName: "John Tenant",
     tenantEmail: "tenant@rentnest.com",
-    rent: "65,000",
+    rentAmount: 65000,
     moveInDate: "2026-10-01",
     status: "Approved",
     paymentCompleted: false,
@@ -39,17 +37,11 @@ const DEFAULT_REQUESTS: RentalRequest[] = [
     propertyTitle: "Elegant Residential Flat in Banani",
     tenantName: "John Tenant",
     tenantEmail: "tenant@rentnest.com",
-    rent: "52,000",
+    rentAmount: 52000,
     moveInDate: "2026-11-01",
     status: "Pending",
     paymentCompleted: false,
   },
-];
-
-const DEFAULT_USERS: UserAccount[] = [
-  { id: "u1", name: "John Tenant", email: "tenant@rentnest.com", role: "tenant", status: "active", createdAt: "2026-01-10" },
-  { id: "u2", name: "David Landlord", email: "landlord@rentnest.com", role: "landlord", status: "active", createdAt: "2026-01-12" },
-  { id: "u3", name: "Admin Moderator", email: "admin@rentnest.com", role: "admin", status: "active", createdAt: "2026-01-01" },
 ];
 
 export const getStoredRequests = (): RentalRequest[] => {
@@ -60,17 +52,37 @@ export const getStoredRequests = (): RentalRequest[] => {
     return DEFAULT_REQUESTS;
   }
   try {
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    // Sanitize any corrupt objects
+    return parsed.map((item: any) => ({
+      id: String(item.id || "req_" + Date.now()),
+      propertyId: String(item.propertyId || "p5"),
+      propertyTitle: String(item.propertyTitle || "Residential Flat"),
+      tenantName: String(item.tenantName || "John Tenant"),
+      tenantEmail: String(item.tenantEmail || "tenant@rentnest.com"),
+      rentAmount: Number(String(item.rentAmount || item.rent || "32000").replace(/[^0-9]/g, "")) || 32000,
+      moveInDate: String(item.moveInDate || new Date().toISOString().split("T")[0]),
+      status: item.status || "Pending",
+      paymentCompleted: !!item.paymentCompleted,
+    }));
   } catch {
     return DEFAULT_REQUESTS;
   }
 };
 
-export const saveRequest = (req: Omit<RentalRequest, "id">) => {
+export const saveRequest = (req: Partial<RentalRequest>) => {
   const all = getStoredRequests();
+  const numericRent = Number(String(req.rentAmount || (req as any).rent || "32000").replace(/[^0-9]/g, "")) || 32000;
   const newReq: RentalRequest = {
-    ...req,
     id: "req_" + Date.now(),
+    propertyId: String(req.propertyId || "p5"),
+    propertyTitle: String(req.propertyTitle || "Concord Tower Residential Complex"),
+    tenantName: String(req.tenantName || "John Tenant"),
+    tenantEmail: String(req.tenantEmail || "tenant@rentnest.com"),
+    rentAmount: numericRent,
+    moveInDate: req.moveInDate || new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
+    status: req.status || "Pending",
+    paymentCompleted: false,
   };
   const updated = [newReq, ...all];
   localStorage.setItem("rentnest_all_requests", JSON.stringify(updated));
@@ -85,39 +97,4 @@ export const updateRequestStatus = (id: string, status: "Pending" | "Approved" |
   );
   localStorage.setItem("rentnest_all_requests", JSON.stringify(updated));
   window.dispatchEvent(new Event("rentnest_requests_updated"));
-};
-
-export const getStoredUsers = (): UserAccount[] => {
-  if (typeof window === "undefined") return DEFAULT_USERS;
-  const data = localStorage.getItem("rentnest_all_users");
-  if (!data) {
-    localStorage.setItem("rentnest_all_users", JSON.stringify(DEFAULT_USERS));
-    return DEFAULT_USERS;
-  }
-  try {
-    return JSON.parse(data);
-  } catch {
-    return DEFAULT_USERS;
-  }
-};
-
-export const saveUser = (user: Omit<UserAccount, "id" | "status" | "createdAt">) => {
-  const all = getStoredUsers();
-  const newUser: UserAccount = {
-    ...user,
-    id: "usr_" + Date.now(),
-    status: "active",
-    createdAt: new Date().toISOString().split("T")[0],
-  };
-  const updated = [newUser, ...all];
-  localStorage.setItem("rentnest_all_users", JSON.stringify(updated));
-  window.dispatchEvent(new Event("rentnest_users_updated"));
-  return newUser;
-};
-
-export const toggleUserStatus = (id: string) => {
-  const all = getStoredUsers();
-  const updated = all.map((u) => (u.id === id ? { ...u, status: u.status === "active" ? "banned" : "active" } : u));
-  localStorage.setItem("rentnest_all_users", JSON.stringify(updated));
-  window.dispatchEvent(new Event("rentnest_users_updated"));
 };

@@ -140,7 +140,7 @@ export default function TenantDashboard() {
       JSON.stringify({
         requestId: req.id,
         propertyTitle: req.propertyTitle,
-        amount: req.rentAmount,
+        amount: Number(req?.rentAmount || (req as any)?.rent || 32000),
         sessionId: sessionId,
       })
     );
@@ -197,7 +197,7 @@ export default function TenantDashboard() {
               {requests.map((req) => (
                 <tr key={req.id} className="hover:bg-slate-50/70 transition">
                   <td className="py-4 px-6 font-semibold text-slate-900">{req.propertyTitle}</td>
-                  <td className="py-4 px-6 font-bold text-slate-800">৳{req.rentAmount.toLocaleString()} / mo</td>
+                  <td className="py-4 px-6 font-bold text-slate-800">৳{(Number(req?.rentAmount || (req as any)?.rent || 32000)).toLocaleString()} / mo</td>
                   <td className="py-4 px-6 text-slate-500">{req.moveInDate}</td>
                   <td className="py-4 px-6">
                     <span

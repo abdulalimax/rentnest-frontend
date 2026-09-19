@@ -37,7 +37,7 @@ export default function PropertyDetailsPage() {
         propertyTitle: String(property?.title || "Concord Tower Residential Complex"),
         tenantName: "John Tenant",
         tenantEmail: "tenant@rentnest.com",
-        rent: String(property?.price || property?.rent || "32,000"),
+        rentAmount: Number(String(property?.price || property?.rent || "32000").replace(/[^0-9]/g, "")) || 32000,
         moveInDate: new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
         status: "Pending",
         paymentCompleted: false,
